@@ -17,9 +17,7 @@ class CarSpider(Spider):
 
         # 第二层
         car_titles = response.xpath('//ul[@id="mainlistUL5"]/li[@class="mainlist_li5"]/span[@class="list_title5"]/a/text()').extract()
-        car_url = response.xpath('//ul[@id="mainlistUL5"]/li[@class="mainlist_li5"]/span[@class="list_title5"]/a/@href').extract()
-
-
+        article_urls = response.xpath('//ul[@id="mainlistUL5"]/li[@class="mainlist_li5"]/span[@class="list_title5"]/a/@href').extract()
 
         if brands:
             for brand in brands:
@@ -30,9 +28,9 @@ class CarSpider(Spider):
                 item['car_title'] = car_title
                 yield item
         if brands_url:
-            self.cars_url = self.base_url + brands_url[0]
-            #this_page = int(re.search(r'list\d+_(\d+)', cars_url).group(1))
-            yield Request(self.cars_url)
+            for single_brand_url in brands_url:
+                self.cars_url = self.base_url + single_brand_url
+                yield Request(self.cars_url)
 
 
         # car 下一页
@@ -47,5 +45,22 @@ class CarSpider(Spider):
                     next_cars_url = re.sub(r'_\d+', page, this_url)
                     if next_cars_url:
                         yield Request(next_cars_url)
+
+        if article_urls:
+            for single_article_url in article_urls:
+                single_article_url = self.base_url + single_article_url
+                yield Request(single_article_url)
+
+        # 第三层；内容部分
+        news_content = response.xpath('//*[@id="mainNewsContent"]/p/text()').extract()
+        if news_content:
+            temp = ''
+            for content in news_content:
+                temp += content.strip()
+            item['car_content'] = temp
+            yield item
+
+
+
 
 

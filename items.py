@@ -13,3 +13,4 @@ class CarItem(scrapy.Item):
     # name = scrapy.Field()
     brand = scrapy.Field()
     car_title = scrapy.Field()
+    car_content = scrapy.Field()
